@@ -1,0 +1,219 @@
+﻿@model MedSync.Models.Doctor
+@{
+    Layout = "_Layout";
+}
+
+<style>
+    :root {
+        --teal: #17bebb;
+        --teal-dk: #0fa3a0;
+        --navy: #0d2b45;
+        --white: #ffffff;
+        --bg: #f0fafa;
+        --muted: #6b8a9a;
+        --border: #d0eaec;
+        --input-bg: #f4fbfb;
+        --error: #e53e3e;
+        --shadow: 0 8px 40px rgba(23,190,187,0.13);
+    }
+
+    .med-register-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 40px 15px;
+        background-color: var(--bg);
+        min-height: calc(100vh - 150px);
+    }
+
+    .med-card {
+        display: flex;
+        width: 100%;
+        max-width: 1000px;
+        background: var(--white);
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+    }
+
+    .med-side-panel {
+        flex: 0 0 40%;
+        background: var(--teal);
+        padding: 60px 40px;
+        color: var(--white);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        position: relative;
+    }
+
+    .med-side-heading {
+        font-size: 2.4rem;
+        font-weight: 800;
+        line-height: 1.2;
+        margin-bottom: 20px;
+    }
+
+        .med-side-heading span {
+            color: var(--navy);
+        }
+
+    .med-form-panel {
+        flex: 1;
+        padding: 50px;
+        background: var(--white);
+    }
+
+    .med-form-title {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: var(--navy);
+        margin-bottom: 10px;
+    }
+
+    .med-field {
+        margin-bottom: 20px;
+    }
+
+        .med-field label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--navy);
+            margin-bottom: 8px;
+        }
+
+    .med-input-group input, .med-input-group select {
+        width: 100%;
+        padding: 12px 15px;
+        background: var(--input-bg);
+        border: 1.5px solid var(--border);
+        border-radius: 10px;
+        font-size: 0.9rem;
+        outline: none;
+    }
+
+    .med-btn-submit {
+        width: 100%;
+        padding: 15px;
+        background: var(--teal);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+        .med-btn-submit:hover {
+            background: var(--teal-dk);
+            transform: translateY(-2px);
+        }
+
+    .text-danger {
+        font-size: 0.75rem;
+        color: var(--error);
+    }
+</style>
+
+<div class="med-register-wrapper">
+    <div class="med-card">
+        <div class="med-side-panel">
+            <p class="med-side-tag">MedSync Pro</p>
+            <h2 class="med-side-heading">Doctor<br><span>Portal</span></h2>
+            <p style="opacity: 0.9;">Register here to manage your appointments and connect with patients seamlessly.</p>
+        </div>
+
+        <div class="med-form-panel">
+            <div class="med-form-header">
+                <h3 class="med-form-title">Register Doctor</h3>
+                <p style="color: var(--muted); font-size: 0.9rem;">Fill in your professional details below.</p>
+            </div>
+
+            <form asp-controller="Doctor" asp-action="Register" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                <div class="med-field">
+                    <label>Profile Picture</label>
+                    <div class="med-input-group">
+                        <input asp-for="ProfileImage" type="file" accept="image/*" />
+                    </div>
+                </div>
+                <div class="med-field">
+                    <label>Full Name</label>
+                    <div class="med-input-group">
+                        <input asp-for="FullName" placeholder="e.g. Dr. Musfirah Kashan" />
+                    </div>
+                    <span asp-validation-for="FullName" class="text-danger"></span>
+                </div>
+
+                <div class="med-field">
+                    <label>Email Address</label>
+                    <div class="med-input-group">
+                        <input asp-for="Email" type="email" placeholder="doctor@medsync.com" />
+                    </div>
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 med-field">
+                        <label>Specialization</label>
+                        <div class="med-input-group">
+                            <select asp-for="Specialization">
+                                <option value="" selected disabled>Choose...</option>
+                                <option value="General Physician">General Physician</option>
+                                <option value="Cardiology">Cardiology</option>
+                                <option value="Dermatology">Dermatology</option>
+                                <option value="Neurology">Neurology</option>
+                                <option value="Pediatrics">Pediatrics</option>
+                                <option value="Psychiatry">Psychiatry</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6 med-field">
+                        <label>Department / Wing</label>
+                        <div class="med-input-group">
+                            <select asp-for="Department">
+                                <option value="" selected disabled>Choose...</option>
+                                <option value="OPD">OPD (Outpatient)</option>
+                                <option value="ER">Emergency Room</option>
+                                <option value="ICU">Intensive Care</option>
+                                <option value="Surgical">Surgical Wing</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 med-field">
+                        <label>Password</label>
+                        <div class="med-input-group">
+                            <input asp-for="Password" type="password" placeholder="••••••••" />
+                        </div>
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6 med-field">
+                        <label>Confirm Password</label>
+                        <div class="med-input-group">
+                            <input asp-for="ConfirmPassword" type="password" placeholder="••••••••" />
+                        </div>
+                        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <button type="submit" class="med-btn-submit mt-3">
+                    Register Doctor Account
+                </button>
+            </form>
+            @* <form asp-controller="Doctor" asp-action="Register" method="post">
+                @Html.AntiForgeryToken()
+
+                <input asp-for="FullName" />
+                <input asp-for="Email" />
+                <input asp-for="Password" type="password" />
+
+                <button type="submit">Submit</button>
+            </form> *@
+        </div>
+    </div>
+</div>

@@ -1,0 +1,171 @@
+﻿@{
+    Layout = "_AdminLayout";
+}
+@model MedSync.Models.DoctorSchedule
+
+<div class="page-wrapper">
+    <div class="content">
+
+        ```
+        <div class="row">
+            <div class="col-lg-8 offset-lg-2">
+                <h4 class="page-title">Add Doctor Schedule</h4>
+            </div>
+        </div>
+
+        @if (ViewBag.Success != null)
+        {
+            <div class="row">
+                <div class="col-lg-8 offset-lg-2">
+                    <div class="alert alert-success alert-dismissible fade show">
+                        <i class="fa fa-check-circle"></i> @ViewBag.Success
+                        <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+                    </div>
+                </div>
+            </div>
+        }
+
+        @if (ViewBag.Error != null)
+        {
+            <div class="row">
+                <div class="col-lg-8 offset-lg-2">
+                    <div class="alert alert-danger alert-dismissible fade show">
+                        <i class="fa fa-exclamation-circle"></i> @ViewBag.Error
+                        <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <div class="row">
+            <div class="col-lg-8 offset-lg-2">
+                <form asp-controller="Admin" asp-action="AddSchedule" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <div class="row">
+
+                        <!-- Doctor -->
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label>Doctor <span class="text-danger">*</span></label>
+                                <select asp-for="DoctorId" class="form-control" required>
+                                    <option value="">Select Doctor</option>
+                                    @if (ViewBag.Doctors != null)
+                                    {
+                                        foreach (var doc in ViewBag.Doctors)
+                                        {
+                                            <option value="@doc.Id">@doc.FullName</option>
+                                        }
+                                    }
+                                </select>
+                                <span asp-validation-for="DoctorId" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <!-- Day -->
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label>Day <span class="text-danger">*</span></label>
+                                <select asp-for="Day" class="form-control" required>
+                                    <option value="">Select Day</option>
+                                    <option>Monday</option>
+                                    <option>Tuesday</option>
+                                    <option>Wednesday</option>
+                                    <option>Thursday</option>
+                                    <option>Friday</option>
+                                    <option>Saturday</option>
+                                    <option>Sunday</option>
+                                </select>
+                                <span asp-validation-for="Day" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <!-- Start Time -->
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label>Start Time <span class="text-danger">*</span></label>
+                                <input asp-for="StartTime" type="time" class="form-control" required />
+                                <span asp-validation-for="StartTime" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <!-- End Time -->
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label>End Time <span class="text-danger">*</span></label>
+                                <input asp-for="EndTime" type="time" class="form-control" required />
+                                <span asp-validation-for="EndTime" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="m-t-20 text-center">
+                        <button type="reset" class="btn btn-secondary m-r-10">
+                            <i class="fa fa-refresh"></i> Reset
+                        </button>
+                        <button type="submit" class="btn btn-primary submit-btn">
+                            <i class="fa fa-check"></i> Add Schedule
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Existing Schedules Table -->
+        <div class="row m-t-30">
+            <div class="col-lg-10 offset-lg-1">
+                <h4 class="page-title">All Schedules</h4>
+                <div class="table-responsive">
+                    <table class="table table-striped custom-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Doctor</th>
+                                <th>Day</th>
+                                <th>Start Time</th>
+                                <th>End Time</th>
+                                <th class="text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (ViewBag.Schedules != null && ViewBag.Schedules.Count > 0)
+                            {
+                                int i = 1;
+                                foreach (var s in ViewBag.Schedules)
+                                {
+                                    <tr>
+                                        <td>@i</td>
+                                        <td>@s.Doctor?.FullName</td>
+                                        <td><span class="badge badge-primary">@s.Day</span></td>
+                                        <td>@DateTime.Today.Add(s.StartTime).ToString("hh:mm tt")</td>
+                                        <td>@DateTime.Today.Add(s.EndTime).ToString("hh:mm tt")</td>
+                                        <td class="text-right">
+                                            <a href="/Admin/DeleteSchedule/@s.Id"
+                                               class="btn btn-sm btn-danger"
+                                               onclick="return confirm('Delete this schedule?')">
+                                                <i class="fa fa-trash"></i> Delete
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    i++;
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted py-4">
+                                        No schedules found.
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    ```
+
+</div>

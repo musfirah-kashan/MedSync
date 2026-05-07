@@ -1,0 +1,205 @@
+﻿@model MedSync.Models.LoginDoctor
+@{
+    Layout = "_Layout";
+}
+
+<style>
+    /* Aapki existing color palette aur base styles */
+    :root {
+        --teal: #17bebb;
+        --teal-dk: #0fa3a0;
+        --navy: #0d2b45;
+        --white: #ffffff;
+        --bg: #f0fafa;
+        --muted: #6b8a9a;
+        --border: #d0eaec;
+        --input-bg: #f4fbfb;
+        --error: #e53e3e;
+        --shadow: 0 8px 40px rgba(23,190,187,0.13);
+    }
+
+    .med-login-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 40px 15px;
+        background-color: var(--bg);
+        min-height: calc(100vh - 150px);
+    }
+
+    .med-card {
+        display: flex;
+        width: 100%;
+        max-width: 900px; /* Login ke liye thora chota width behtar lagta hai */
+        background: var(--white);
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+    }
+
+    .med-side-panel {
+        flex: 0 0 40%;
+        background: var(--navy); /* Login mein Navy theme thora professional lagta hai */
+        padding: 60px 40px;
+        color: var(--white);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        position: relative;
+    }
+
+    .med-side-heading {
+        font-size: 2.4rem;
+        font-weight: 800;
+        line-height: 1.2;
+        margin-bottom: 20px;
+    }
+
+        .med-side-heading span {
+            color: var(--teal);
+        }
+
+    .med-form-panel {
+        flex: 1;
+        padding: 60px 50px;
+        background: var(--white);
+    }
+
+    .med-form-title {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: var(--navy);
+        margin-bottom: 10px;
+    }
+
+    .med-field {
+        margin-bottom: 25px;
+    }
+
+        .med-field label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--navy);
+            margin-bottom: 8px;
+        }
+
+    .med-input-group input {
+        width: 100%;
+        padding: 12px 15px;
+        background: var(--input-bg);
+        border: 1.5px solid var(--border);
+        border-radius: 10px;
+        font-size: 0.9rem;
+        outline: none;
+        transition: 0.3s;
+    }
+
+        .med-input-group input:focus {
+            border-color: var(--teal);
+            box-shadow: 0 0 0 4px rgba(23,190,187,0.1);
+        }
+
+    .med-btn-submit {
+        width: 100%;
+        padding: 15px;
+        background: var(--teal);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: 0.3s;
+        margin-top: 10px;
+    }
+
+        .med-btn-submit:hover {
+            background: var(--teal-dk);
+            transform: translateY(-2px);
+        }
+
+    .med-footer-links {
+        margin-top: 25px;
+        text-align: center;
+        font-size: 0.9rem;
+        color: var(--muted);
+    }
+
+        .med-footer-links a {
+            color: var(--teal);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+    .remember-me {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.85rem;
+        color: var(--muted);
+        cursor: pointer;
+    }
+
+    .text-danger {
+        font-size: 0.75rem;
+        color: var(--error);
+        margin-top: 5px;
+        display: block;
+    }
+</style>
+
+<div class="med-login-wrapper">
+    <div class="med-card">
+        <!-- Side Panel -->
+        <div class="med-side-panel">
+            <p class="med-side-tag">MedSync Pro</p>
+            <h2 class="med-side-heading">Welcome<br><span>Back</span></h2>
+            <p style="opacity: 0.8;">Access your dashboard, manage patients, and check your schedule.</p>
+        </div>
+
+        <!-- Form Panel -->
+        <div class="med-form-panel">
+            <div class="med-form-header">
+                <h3 class="med-form-title">Doctor Login</h3>
+                <p style="color: var(--muted); font-size: 0.9rem; margin-bottom: 30px;">Please enter your credentials to continue.</p>
+            </div>
+
+            <form asp-controller="Doctor" asp-action="Login" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="med-field">
+                    <label>Email Address</label>
+                    <div class="med-input-group">
+                        <input asp-for="Email" type="email" placeholder="doctor@medsync.com" required />
+                    </div>
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+
+                <div class="med-field">
+                    <div style="display: flex; justify-content: space-between;">
+                        <label>Password</label>
+                        <a href="#" style="font-size: 0.75rem; color: var(--teal); text-decoration: none;">Forgot?</a>
+                    </div>
+                    <div class="med-input-group">
+                        <input asp-for="Password" type="password" placeholder="••••••••" required />
+                    </div>
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+
+                <div class="med-field">
+                    <label class="remember-me">
+                        <input type="checkbox" asp-for="RememberMe" style="width: auto;"> Remember this device
+                    </label>
+                </div>
+
+                <button type="submit" class="med-btn-submit">
+                    Sign In to Portal
+                </button>
+
+                <div class="med-footer-links">
+                    Don't have an account? <a asp-action="Register">Register as Doctor</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,310 @@
+﻿@model MedSync.Models.Appointment
+@using System.Text.Json
+
+<input type="hidden" id="doctorSchedulesData" value='@Html.Raw(ViewBag.DoctorSchedulesJson)' />
+
+@if (ViewBag.Error != null)
+{
+    <div class="alert alert-danger mx-3 mt-3">@ViewBag.Error</div>
+}
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success mx-3 mt-3">@TempData["Success"]</div>
+}
+
+<div class="container-fluid py-5">
+    <div class="container">
+        <div class="row gx-5">
+
+            <div class="col-lg-6 mb-5 mb-lg-0">
+                <div class="mb-4">
+                    <h5 class="d-inline-block text-primary text-uppercase border-bottom border-5">Appointment</h5>
+                    <h1 class="display-4">Make An Appointment For Your Family</h1>
+                </div>
+                <p class="mb-5">
+                    Select your preferred doctor, pick a date, and choose an available
+                    time slot. Our system ensures you get the best care at your convenience.
+                </p>
+                <a class="btn btn-primary rounded-pill py-3 px-5 me-3" href="">Find Doctor</a>
+                <a class="btn btn-outline-primary rounded-pill py-3 px-5" href="">Read More</a>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="bg-light text-center rounded p-5">
+                    <h1 class="mb-4">Book An Appointment</h1>
+
+                    <form asp-controller="Patient" asp-action="Book" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" id="AppointmentDate" asp-for="AppointmentDate" />
+
+                        <div class="row g-3">
+
+                            <!-- Step 1: Doctor -->
+                            <div class="col-12">
+                                <select asp-for="DoctorId" id="DoctorId"
+                                        class="form-select bg-white border-0"
+                                        style="height:55px;" required>
+                                    <option value="" disabled selected>Select Doctor</option>
+                                    @if (ViewBag.Doctors != null)
+                                    {
+                                        foreach (var doc in ViewBag.Doctors)
+                                        {
+                                            <option value="@doc.Id">@doc.FullName</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+
+                            <!-- Step 2: Date picker -->
+                            <div class="col-12 d-none" id="dateSection">
+                                <label class="form-label fw-bold text-start w-100 text-primary">
+                                    1. Select Date
+                                </label>
+                                <input type="date"
+                                       id="datePicker"
+                                       class="form-control bg-white border-0"
+                                       style="height:55px;" />
+                                <small id="dateError" class="text-danger d-none">
+                                    This doctor is not available on the selected date.
+                                </small>
+                            </div>
+
+                            <!-- Step 3: Time slots -->
+                            <div class="col-12 d-none" id="slotsSection">
+                                <label class="form-label fw-bold text-start w-100 text-primary">
+                                    2. Select Time Slot
+                                </label>
+                                <div id="slotsContainer" class="d-flex flex-wrap gap-2"></div>
+                                <small id="slotError" class="text-danger d-none">
+                                    Please select a time slot.
+                                </small>
+                            </div>
+
+                            <!-- Confirmation -->
+                            <div class="col-12 d-none" id="selectedDisplay">
+                                <div class="alert alert-success py-2 mb-0 text-start">
+                                    <i class="fa fa-check-circle me-1"></i>
+                                    Appointment: <strong id="selectedText"></strong>
+                                </div>
+                            </div>
+
+                            <!-- Patient Name -->
+                            <div class="col-12 col-sm-6">
+                                <input asp-for="PatientName"
+                                       class="form-control bg-white border-0"
+                                       placeholder="Your Name"
+                                       style="height:55px;" required />
+                                <span asp-validation-for="PatientName" class="text-danger small"></span>
+                            </div>
+
+                            <!-- Email -->
+                            <div class="col-12 col-sm-6">
+                                <input asp-for="Email" type="email"
+                                       class="form-control bg-white border-0"
+                                       placeholder="Your Email"
+                                       style="height:55px;" required />
+                                <span asp-validation-for="Email" class="text-danger small"></span>
+                            </div>
+
+                            <!-- Phone -->
+                            <div class="col-12">
+                                <input asp-for="Phone"
+                                       class="form-control bg-white border-0"
+                                       placeholder="Phone Number"
+                                       style="height:55px;" required />
+                                <span asp-validation-for="Phone" class="text-danger small"></span>
+                            </div>
+
+                            <!-- Reason -->
+                            <div class="col-12">
+                                <textarea asp-for="Reason"
+                                          class="form-control bg-white border-0"
+                                          placeholder="Describe your problem"
+                                          style="height:100px;"></textarea>
+                            </div>
+
+                            <!-- Submit -->
+                            <div class="col-12">
+                                <button class="btn btn-primary w-100 py-3" type="submit">
+                                    Make An Appointment
+                                </button>
+                            </div>
+
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        (function () {
+            var raw = document.getElementById('doctorSchedulesData').value;
+            var schedules = [];
+            try { schedules = JSON.parse(raw || '[]'); } catch(e) { console.error(e); }
+
+            var doctorSelect    = document.getElementById('DoctorId');
+            var dateSection     = document.getElementById('dateSection');
+            var datePicker      = document.getElementById('datePicker');
+            var dateError       = document.getElementById('dateError');
+            var slotsSection    = document.getElementById('slotsSection');
+            var slotsContainer  = document.getElementById('slotsContainer');
+            var slotError       = document.getElementById('slotError');
+            var selectedDisplay = document.getElementById('selectedDisplay');
+            var selectedText    = document.getElementById('selectedText');
+            var apptDate        = document.getElementById('AppointmentDate');
+
+            var dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+            // ── KEY FIX: kal se aage ki dates allow karo ──
+            var tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            datePicker.min = tomorrow.getFullYear() + '-' +
+                String(tomorrow.getMonth() + 1).padStart(2, '0') + '-' +
+                String(tomorrow.getDate()).padStart(2, '0');
+
+            function resetDate() {
+                datePicker.value         = '';
+                dateError.classList.add('d-none');
+                slotsSection.classList.add('d-none');
+                slotsContainer.innerHTML = '';
+                slotError.classList.add('d-none');
+                selectedDisplay.classList.add('d-none');
+                selectedText.textContent = '';
+                apptDate.value           = '';
+            }
+
+            function resetSlots() {
+                slotsContainer.innerHTML = '';
+                slotError.classList.add('d-none');
+                selectedDisplay.classList.add('d-none');
+                selectedText.textContent = '';
+                apptDate.value           = '';
+            }
+
+            // Step 1: Doctor change
+            doctorSelect.addEventListener('change', function () {
+                resetDate();
+                dateSection.classList.remove('d-none');
+            });
+
+            // Step 2: Date change
+            datePicker.addEventListener('change', function () {
+                resetSlots();
+                dateError.classList.add('d-none');
+
+                var selectedDate = new Date(this.value + 'T00:00:00');
+                var selectedDay  = dayNames[selectedDate.getDay()];
+                var doctorId     = parseInt(doctorSelect.value);
+
+                var matchedSchedule = schedules.find(function(s) {
+                    return Number(s.doctorId) === doctorId &&
+                           s.day.toLowerCase() === selectedDay.toLowerCase();
+                });
+
+                if (!matchedSchedule) {
+                    dateError.textContent = 'Doctor is not available on ' + selectedDay + '. Please pick another date.';
+                    dateError.classList.remove('d-none');
+                    slotsSection.classList.add('d-none');
+                    return;
+                }
+
+                renderSlots(matchedSchedule, selectedDay, this.value);
+            });
+
+            // Step 3: Slots render
+            function renderSlots(sched, dayName, dateStr) {
+                slotsSection.classList.remove('d-none');
+                var slots = generateSlots(sched.startTime, sched.endTime);
+
+                if (!slots.length) {
+                    slotsContainer.innerHTML = "<p class='text-muted small'>No slots available.</p>";
+                    return;
+                }
+
+                slots.forEach(function(slot) {
+                    var btn         = document.createElement('button');
+                    btn.type        = 'button';
+                    btn.textContent = slot;
+                    btn.className   = 'btn btn-outline-success btn-sm px-3';
+
+                    btn.addEventListener('click', function () {
+                        slotsContainer.querySelectorAll('button').forEach(function(b) {
+                            b.classList.remove('btn-success');
+                            b.classList.add('btn-outline-success');
+                        });
+                        btn.classList.add('btn-success');
+                        btn.classList.remove('btn-outline-success');
+                        slotError.classList.add('d-none');
+
+                        apptDate.value = buildDateTime(dateStr, slot);
+
+                        selectedText.textContent = dayName + ', ' + formatDate(dateStr) + ' at ' + slot;
+                        selectedDisplay.classList.remove('d-none');
+                    });
+
+                    slotsContainer.appendChild(btn);
+                });
+            }
+
+            function generateSlots(start, end) {
+                var slots   = [];
+                var toMin   = function(t) {
+                    var p = t.split(':');
+                    return parseInt(p[0]) * 60 + parseInt(p[1]);
+                };
+                var current = toMin(start);
+                var endMin  = toMin(end);
+
+                while (current < endMin) {
+                    var h    = Math.floor(current / 60);
+                    var m    = current % 60;
+                    var ampm = h >= 12 ? 'PM' : 'AM';
+                    var h12  = h % 12 || 12;
+                    slots.push(
+                        (h12 < 10 ? '0'+h12 : h12) + ':' +
+                        (m   < 10 ? '0'+m   : m)   + ' ' + ampm
+                    );
+                    current += 30;
+                }
+                return slots;
+            }
+
+            function buildDateTime(dateStr, timeStr) {
+                var parts = timeStr.match(/(\d+):(\d+)\s(AM|PM)/);
+                var h     = parseInt(parts[1]);
+                var m     = parseInt(parts[2]);
+                if (parts[3] === 'PM' && h !== 12) h += 12;
+                if (parts[3] === 'AM' && h === 12)  h  = 0;
+                return dateStr + 'T' +
+                    String(h).padStart(2,'0') + ':' +
+                    String(m).padStart(2,'0');
+            }
+
+            function formatDate(dateStr) {
+                var d = new Date(dateStr + 'T00:00:00');
+                return d.toLocaleDateString('en-US', { day:'numeric', month:'short', year:'numeric' });
+            }
+
+            document.querySelector('form').addEventListener('submit', function(e) {
+                if (!apptDate.value) {
+                    e.preventDefault();
+                    if (!datePicker.value) {
+                        dateError.textContent = 'Please select a date first.';
+                        dateError.classList.remove('d-none');
+                        dateSection.classList.remove('d-none');
+                    } else {
+                        slotError.classList.remove('d-none');
+                        slotsSection.classList.remove('d-none');
+                    }
+                }
+            });
+
+        })();
+    </script>
+}

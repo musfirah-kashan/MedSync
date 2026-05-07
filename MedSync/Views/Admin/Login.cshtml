@@ -1,0 +1,113 @@
+﻿@{
+    Layout = "_Layout";
+}
+
+<style>
+    :root {
+        --teal: #17bebb;
+        --navy: #0d2b45;
+        --bg: #f0fafa;
+        --white: #fff;
+        --shadow: 0 8px 40px rgba(23,190,187,0.13);
+    }
+
+    .login-wrapper {
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: var(--bg);
+    }
+
+    .login-box {
+        display: flex;
+        width: 850px;
+        background: var(--white);
+        border-radius: 18px;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+    }
+
+    .left {
+        flex: 1;
+        background: var(--navy);
+        color: white;
+        padding: 50px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+        .left h1 {
+            font-size: 32px;
+        }
+
+        .left span {
+            color: var(--teal);
+        }
+
+    .right {
+        flex: 1;
+        padding: 50px;
+    }
+
+        .right h2 {
+            margin-bottom: 20px;
+            color: var(--navy);
+        }
+
+    input {
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+    }
+
+    button {
+        width: 100%;
+        padding: 12px;
+        background: var(--teal);
+        border: none;
+        color: white;
+        font-weight: bold;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+
+        button:hover {
+            background: #0fa3a0;
+        }
+
+    .error {
+        color: red;
+        font-size: 13px;
+    }
+</style>
+
+<div class="login-wrapper">
+    <div class="login-box">
+
+        <div class="left">
+            <h1>Admin <span>Panel</span></h1>
+            <p>Manage system securely</p>
+        </div>
+
+        <div class="right">
+            <h2>Login</h2>
+
+            <form asp-controller="Admin" asp-action="Login" method="post">
+
+                <input name="email" type="email" placeholder="Admin Email" required />
+
+                <input name="password" type="password" placeholder="Password" required />
+
+                <button type="submit">Login</button>
+
+                <p class="error">@ViewBag.Error</p>
+
+            </form>
+        </div>
+
+    </div>
+</div>
