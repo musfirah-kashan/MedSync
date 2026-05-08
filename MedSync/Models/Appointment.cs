@@ -1,6 +1,7 @@
-﻿using MedSync.Models;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+
 namespace MedSync.Models
 {
     public class Appointment
@@ -29,9 +30,9 @@ namespace MedSync.Models
 
         public int DoctorScheduleId { get; set; }
 
-        // ✅ FIX: make nullable (VERY IMPORTANT)
-        public Doctor? Doctor { get; set; }
+        public string? UserId { get; set; } 
 
+        public Doctor? Doctor { get; set; }
         public DoctorSchedule? DoctorSchedule { get; set; }
     }
 }

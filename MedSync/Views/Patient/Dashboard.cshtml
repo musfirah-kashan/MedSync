@@ -1,3 +1,391 @@
 ﻿@{
     Layout = "_PatientLayout";
 }
+@using MedSync.Models
+
+<style>
+    .notif-card {
+        background: linear-gradient(135deg, #17bebb, #0fa3a0);
+        color: white;
+        border-radius: 12px;
+        padding: 16px 22px;
+        margin-bottom: 14px;
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+        animation: slideDown 0.4s ease;
+    }
+    .notif-card i    { font-size: 1.3rem; margin-top: 2px; flex-shrink: 0; }
+    .notif-title     { font-weight: 600; font-size: 0.92rem; }
+    .notif-body      { font-size: 0.82rem; opacity: 0.9; margin-top: 2px; }
+
+    @@keyframes slideDown {
+        from { opacity: 0; transform: translateY(-8px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin-bottom: 28px;
+    }
+    .stat-card {
+        background: white;
+        border-radius: 12px;
+        padding: 22px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        border: 1px solid #d0eaec;
+    }
+    .stat-icon {
+        width: 50px; height: 50px;
+        border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.2rem;
+        flex-shrink: 0;
+    }
+    .si-teal  { background: rgba(23,190,187,0.12); color: #17bebb; }
+    .si-green { background: rgba(56,161,105,0.12); color: #38a169; }
+    .si-navy  { background: rgba(13,43,69,0.08);   color: #0d2b45; }
+    .stat-num   { font-size: 1.8rem; font-weight: 700; color: #0d2b45; line-height: 1; }
+    .stat-label { font-size: 0.78rem; color: #6b8a9a; margin-top: 3px; }
+
+    .btn-book-new {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: #17bebb;
+        color: white;
+        padding: 12px 28px;
+        border-radius: 30px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-decoration: none;
+        margin-bottom: 24px;
+        transition: background 0.2s, transform 0.15s;
+    }
+    .btn-book-new:hover { background: #0fa3a0; transform: translateY(-1px); color: white; }
+
+    .appt-card {
+        background: white;
+        border-radius: 12px;
+        border: 1px solid #d0eaec;
+        overflow: hidden;
+    }
+    .appt-card-header {
+        padding: 18px 24px;
+        border-bottom: 1px solid #d0eaec;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .appt-card-header h5 {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #0d2b45;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0;
+    }
+    .appt-card-header h5 i { color: #17bebb; }
+
+    table { width: 100%; border-collapse: collapse; }
+    thead th {
+        background: #f0fafa;
+        padding: 12px 20px;
+        text-align: left;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #6b8a9a;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    tbody td {
+        padding: 14px 20px;
+        font-size: 0.87rem;
+        color: #0d2b45;
+        border-top: 1px solid #d0eaec;
+        vertical-align: middle;
+    }
+    tbody tr:hover td { background: #f8fefe; }
+
+    .doc-name { font-weight: 600; }
+    .doc-spec  { font-size: 0.76rem; color: #6b8a9a; }
+
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.74rem;
+        font-weight: 600;
+    }
+    .b-pending   { background: #fef3c7; color: #92400e; }
+    .b-confirmed { background: #d1fae5; color: #065f46; }
+    .b-cancelled { background: #fee2e2; color: #991b1b; }
+    .b-completed { background: #dbeafe; color: #1e40af; }
+
+    .empty {
+        text-align: center;
+        padding: 52px 20px;
+        color: #6b8a9a;
+    }
+    .empty i { font-size: 2.8rem; display: block; margin-bottom: 12px; opacity: 0.35; }
+
+    .success-banner {
+        background: #d1fae5;
+        border: 1px solid #6ee7b7;
+        color: #065f46;
+        border-radius: 10px;
+        padding: 14px 20px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    .password-box {
+        background: #fef3c7;
+        border: 1px solid #fcd34d;
+        border-radius: 12px;
+        padding: 20px 24px;
+        margin-bottom: 20px;
+    }
+    .password-box-title {
+        font-weight: 700;
+        color: #92400e;
+        font-size: 1rem;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .password-box-body {
+        color: #78350f;
+        font-size: 0.88rem;
+        margin-bottom: 12px;
+    }
+    .password-box-credentials {
+        background: white;
+        border-radius: 8px;
+        padding: 14px 18px;
+        font-size: 0.9rem;
+        color: #0d2b45;
+    }
+    .password-box-credentials div + div { margin-top: 6px; }
+    .password-code {
+        background: #f0fafa;
+        padding: 2px 10px;
+        border-radius: 4px;
+        font-size: 0.95rem;
+        color: #17bebb;
+        font-family: monospace;
+        font-weight: 600;
+    }
+    .password-box-warn {
+        font-size: 0.78rem;
+        color: #92400e;
+        margin-top: 10px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    @@media (max-width: 640px) {
+        .stats-grid { grid-template-columns: 1fr; }
+        thead th, tbody td { padding: 10px 12px; }
+    }
+</style>
+
+@* Success *@
+@if (TempData["Success"] != null)
+{
+    <div class="success-banner">
+        <i class="fa fa-check-circle"></i> @TempData["Success"]
+    </div>
+}
+
+@* New user — generated password dikhao *@
+@if (TempData["ShowPassword"] != null)
+{
+    <div class="password-box">
+        <div class="password-box-title">
+            <i class="fa fa-key"></i> Your Account Has Been Created!
+        </div>
+        <div class="password-box-body">
+            Save your login credentials to access your dashboard anytime:
+        </div>
+        <div class="password-box-credentials">
+            <div><strong>Email:</strong> @TempData["PatientEmail"]</div>
+            <div>
+                <strong>Password:</strong>
+                <span class="password-code">@TempData["GenPassword"]</span>
+            </div>
+        </div>
+        <div class="password-box-warn">
+            <i class="fa fa-exclamation-triangle"></i>
+            Please save this password. You will need it to login next time.
+        </div>
+    </div>
+}
+
+@* Upcoming notifications *@
+@if (ViewBag.Upcoming != null)
+{
+    foreach (var appt in (List<Appointment>)ViewBag.Upcoming)
+    {
+        var hoursLeft = (appt.AppointmentDate - DateTime.Now).TotalHours;
+        var msg = hoursLeft < 24
+            ? "Your appointment is tomorrow!"
+            : "Your appointment is in 2 days!";
+
+        <div class="notif-card">
+            <i class="fa fa-bell"></i>
+            <div>
+                <div class="notif-title">
+                    Reminder — Dr. @appt.Doctor?.FullName
+                </div>
+                <div class="notif-body">
+                    @msg Scheduled on
+                    @appt.AppointmentDate.ToString("dddd, dd MMM yyyy 'at' hh:mm tt")
+                </div>
+            </div>
+        </div>
+    }
+}
+
+@* Stats *@
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon si-teal"><i class="fa fa-calendar-check"></i></div>
+        <div>
+            <div class="stat-num">@ViewBag.TotalCount</div>
+            <div class="stat-label">Total Appointments</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon si-green"><i class="fa fa-check-circle"></i></div>
+        <div>
+            <div class="stat-num">@ViewBag.ConfirmedCount</div>
+            <div class="stat-label">Confirmed</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon si-navy"><i class="fa fa-clock"></i></div>
+        <div>
+            <div class="stat-num">@ViewBag.PendingCount</div>
+            <div class="stat-label">Pending</div>
+        </div>
+    </div>
+</div>
+
+@* Book new *@
+<a href="/Patient/Appointment" class="btn-book-new">
+    <i class="fa fa-plus"></i> Book New Appointment
+</a>
+
+@* History table *@
+<div class="appt-card">
+    <div class="appt-card-header">
+        <h5><i class="fa fa-history"></i> My Appointment History</h5>
+    </div>
+
+    @{
+        var allAppts = ViewBag.Appointments as List<Appointment>;
+    }
+
+    @if (allAppts != null && allAppts.Any())
+    {
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Doctor</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Reason</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{ int i = 1; }
+                @foreach (var a in allAppts)
+                {
+                    var badgeClass = a.Status switch {
+                        "Confirmed" => "b-confirmed",
+                        "Cancelled" => "b-cancelled",
+                        "Completed" => "b-completed",
+                        _           => "b-pending"
+                    };
+                    <tr>
+                        <td>@i</td>
+                        <td>
+                            <div class="doc-name">@(a.Doctor?.FullName ?? "—")</div>
+                            <div class="doc-spec">@(a.Doctor?.Specialization ?? "")</div>
+                        </td>
+                        <td>@a.AppointmentDate.ToString("dd MMM yyyy")</td>
+                        <td>@a.AppointmentDate.ToString("hh:mm tt")</td>
+                        <td style="color:#6b8a9a">
+                            @(string.IsNullOrEmpty(a.Reason) ? "—" : a.Reason)
+                        </td>
+                        <td>
+                            <span class="badge @badgeClass">
+                                <i class="fa fa-circle" style="font-size:6px"></i>
+                                @a.Status
+                            </span>
+                        </td>
+                    </tr>
+                    i++;
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <div class="empty">
+            <i class="fa fa-calendar-times"></i>
+            <p>No appointments found.</p>
+            <a href="/Patient/Appointment" class="btn-book-new"
+               style="margin-top:16px; display:inline-flex">
+                Book Your First Appointment
+            </a>
+        </div>
+    }
+</div>
+
+@section Scripts {
+<script>
+(function() {
+    var upcoming = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+        ((ViewBag.Upcoming as List<MedSync.Models.Appointment>)
+            ?? new List<MedSync.Models.Appointment>())
+        .Select(a => new {
+            doctor = a.Doctor != null ? a.Doctor.FullName : "Doctor",
+            date   = a.AppointmentDate.ToString("dd MMM yyyy hh:mm tt")
+        })
+    ));
+
+    if (!upcoming || upcoming.length === 0) return;
+
+    if ('Notification' in window) {
+        Notification.requestPermission().then(function(permission) {
+            if (permission === 'granted') {
+                upcoming.forEach(function(appt) {
+                    new Notification('MedSync — Appointment Reminder', {
+                        body: 'Upcoming appointment with Dr. ' +
+                              appt.doctor + ' on ' + appt.date,
+                        icon: '/favicon.ico'
+                    });
+                });
+            }
+        });
+    }
+})();
+</script>
+}

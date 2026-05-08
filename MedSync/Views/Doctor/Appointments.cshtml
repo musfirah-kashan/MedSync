@@ -4,8 +4,8 @@
 @using MedSync.Models
 
 <div class="page-heading">
-    <h2>Welcome back, Dr. @ViewBag.Name 👋</h2>
-    <p>Here's what's happening with your appointments today.</p>
+    <h2>My Appointments</h2>
+    <p>Manage and update your patient appointments.</p>
 </div>
 
 @if (TempData["Success"] != null)
@@ -17,106 +17,55 @@
     </div>
 }
 
-<!-- Stats -->
-<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px;">
-
-    <div style="background:white;border-radius:14px;padding:22px;border:1px solid #d0eaec;
-                border-top:4px solid #17bebb;">
-        <div style="display:flex;align-items:center;gap:14px;">
-            <div style="width:48px;height:48px;background:rgba(23,190,187,0.1);border-radius:12px;
-                        display:flex;align-items:center;justify-content:center;">
-                <i class="fa fa-calendar" style="color:#17bebb;font-size:1.2rem;"></i>
-            </div>
-            <div>
-                <div style="font-size:1.8rem;font-weight:700;color:#0d2b45;line-height:1;">
-                    @ViewBag.TotalCount
-                </div>
-                <div style="font-size:0.78rem;color:#6b8a9a;margin-top:2px;">Total</div>
-            </div>
-        </div>
-    </div>
-
-    <div style="background:white;border-radius:14px;padding:22px;border:1px solid #d0eaec;
-                border-top:4px solid #f59e0b;">
-        <div style="display:flex;align-items:center;gap:14px;">
-            <div style="width:48px;height:48px;background:rgba(245,158,11,0.1);border-radius:12px;
-                        display:flex;align-items:center;justify-content:center;">
-                <i class="fa fa-clock-o" style="color:#f59e0b;font-size:1.2rem;"></i>
-            </div>
-            <div>
-                <div style="font-size:1.8rem;font-weight:700;color:#0d2b45;line-height:1;">
-                    @ViewBag.PendingCount
-                </div>
-                <div style="font-size:0.78rem;color:#6b8a9a;margin-top:2px;">Pending</div>
-            </div>
-        </div>
-    </div>
-
-    <div style="background:white;border-radius:14px;padding:22px;border:1px solid #d0eaec;
-                border-top:4px solid #10b981;">
-        <div style="display:flex;align-items:center;gap:14px;">
-            <div style="width:48px;height:48px;background:rgba(16,185,129,0.1);border-radius:12px;
-                        display:flex;align-items:center;justify-content:center;">
-                <i class="fa fa-check-circle" style="color:#10b981;font-size:1.2rem;"></i>
-            </div>
-            <div>
-                <div style="font-size:1.8rem;font-weight:700;color:#0d2b45;line-height:1;">
-                    @ViewBag.ConfirmedCount
-                </div>
-                <div style="font-size:0.78rem;color:#6b8a9a;margin-top:2px;">Confirmed</div>
-            </div>
-        </div>
-    </div>
-
-    <div style="background:white;border-radius:14px;padding:22px;border:1px solid #d0eaec;
-                border-top:4px solid #ef4444;">
-        <div style="display:flex;align-items:center;gap:14px;">
-            <div style="width:48px;height:48px;background:rgba(239,68,68,0.1);border-radius:12px;
-                        display:flex;align-items:center;justify-content:center;">
-                <i class="fa fa-times-circle" style="color:#ef4444;font-size:1.2rem;"></i>
-            </div>
-            <div>
-                <div style="font-size:1.8rem;font-weight:700;color:#0d2b45;line-height:1;">
-                    @ViewBag.RejectedCount
-                </div>
-                <div style="font-size:0.78rem;color:#6b8a9a;margin-top:2px;">Rejected</div>
-            </div>
-        </div>
-    </div>
-
+<!-- Filter Pills -->
+<div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
+    @{
+        var filters = new[] {
+        ("All",       (int)ViewBag.TotalCount,     "#17bebb"),
+        ("Pending",   (int)ViewBag.PendingCount,   "#f59e0b"),
+        ("Confirmed", (int)ViewBag.ConfirmedCount, "#10b981"),
+        ("Rejected",  (int)ViewBag.RejectedCount,  "#ef4444"),
+        };
+        var currentFilter = ViewBag.Filter as string ?? "All";
+    }
+    @foreach (var (label, count, color) in filters)
+    {
+        var isActive = currentFilter == label;
+        <a href="/Doctor/Appointments?filter=@label"
+           style="display:inline-flex;align-items:center;gap:8px;
+                      padding:8px 18px;border-radius:25px;font-size:0.85rem;font-weight:600;
+                      text-decoration:none;transition:all 0.2s;
+                      background:@(isActive? color : "white");
+                      color:@(isActive ? "white" : "#6b8a9a");
+                      border:1.5px solid @(isActive? color : "#d0eaec");">
+            @label
+            <span style="background:@(isActive ? "rgba(255,255,255,0.25)" : "#f0fafa");
+                             color:@(isActive ? "white" : color);
+                             padding:1px 8px;border-radius:12px;font-size:0.72rem;font-weight:700;">
+                @count
+            </span>
+        </a>
+    }
 </div>
 
-<!-- Recent Appointments -->
+<!-- Table -->
 <div style="background:white;border-radius:14px;border:1px solid #d0eaec;overflow:hidden;">
-    <div style="padding:18px 24px;border-bottom:1px solid #d0eaec;
-                display:flex;align-items:center;justify-content:space-between;">
-        <h5 style="margin:0;font-size:1rem;font-weight:600;color:#0d2b45;">
-            <i class="fa fa-history" style="color:#17bebb;margin-right:8px;"></i>
-            Recent Appointments
-        </h5>
-        <a href="/Doctor/Appointments"
-           style="background:#17bebb;color:white;padding:7px 16px;border-radius:20px;
-                  font-size:0.8rem;font-weight:600;text-decoration:none;
-                  transition:background 0.2s;"
-           onmouseover="this.style.background='#0fa3a0'"
-           onmouseout="this.style.background='#17bebb'">
-            View All
-        </a>
-    </div>
-
     <div style="overflow-x:auto;">
         <table style="width:100%;border-collapse:collapse;">
             <thead>
                 <tr style="background:#f0fafa;">
                     <th style="padding:12px 20px;text-align:left;font-size:0.72rem;
                                font-weight:600;color:#6b8a9a;text-transform:uppercase;
+                               letter-spacing:0.5px;">#</th>
+                    <th style="padding:12px 20px;text-align:left;font-size:0.72rem;
+                               font-weight:600;color:#6b8a9a;text-transform:uppercase;
                                letter-spacing:0.5px;">Patient</th>
                     <th style="padding:12px 20px;text-align:left;font-size:0.72rem;
                                font-weight:600;color:#6b8a9a;text-transform:uppercase;
-                               letter-spacing:0.5px;">Date</th>
+                               letter-spacing:0.5px;">Contact</th>
                     <th style="padding:12px 20px;text-align:left;font-size:0.72rem;
                                font-weight:600;color:#6b8a9a;text-transform:uppercase;
-                               letter-spacing:0.5px;">Time</th>
+                               letter-spacing:0.5px;">Date & Time</th>
                     <th style="padding:12px 20px;text-align:left;font-size:0.72rem;
                                font-weight:600;color:#6b8a9a;text-transform:uppercase;
                                letter-spacing:0.5px;">Reason</th>
@@ -130,7 +79,8 @@
             </thead>
             <tbody>
                 @{
-                    var appts = ViewBag.RecentAppointments as List<Appointment>;
+                    var appts = ViewBag.Appointments as List<Appointment>;
+                    int i = 1;
                 }
                 @if (appts != null && appts.Any())
                 {
@@ -139,12 +89,15 @@
                         <tr style="border-top:1px solid #d0eaec;"
                             onmouseover="this.style.background='#f8fefe'"
                             onmouseout="this.style.background='white'">
+                            <td style="padding:14px 20px;font-size:0.85rem;color:#6b8a9a;">
+                                @i
+                            </td>
                             <td style="padding:14px 20px;">
                                 <div style="display:flex;align-items:center;gap:10px;">
-                                    <div style="width:34px;height:34px;background:#17bebb;
+                                    <div style="width:36px;height:36px;background:#17bebb;
                                                         border-radius:50%;display:flex;align-items:center;
                                                         justify-content:center;color:white;font-weight:700;
-                                                        font-size:0.85rem;flex-shrink:0;">
+                                                        font-size:0.88rem;flex-shrink:0;">
                                         @(a.PatientName?.Length > 0 ? a.PatientName[0].ToString().ToUpper() : "P")
                                     </div>
                                     <span style="font-weight:600;font-size:0.88rem;color:#0d2b45;">
@@ -152,18 +105,24 @@
                                     </span>
                                 </div>
                             </td>
-                            <td style="padding:14px 20px;font-size:0.87rem;color:#0d2b45;">
-                                @a.AppointmentDate.ToString("dd MMM yyyy")
+                            <td style="padding:14px 20px;">
+                                <div style="font-size:0.82rem;color:#0d2b45;">@a.Email</div>
+                                <div style="font-size:0.78rem;color:#6b8a9a;">@a.Phone</div>
                             </td>
-                            <td style="padding:14px 20px;font-size:0.87rem;color:#6b8a9a;">
-                                @a.AppointmentDate.ToString("hh:mm tt")
+                            <td style="padding:14px 20px;">
+                                <div style="font-size:0.87rem;font-weight:600;color:#0d2b45;">
+                                    @a.AppointmentDate.ToString("dd MMM yyyy")
+                                </div>
+                                <div style="font-size:0.78rem;color:#6b8a9a;">
+                                    @a.AppointmentDate.ToString("hh:mm tt")
+                                </div>
                             </td>
                             <td style="padding:14px 20px;font-size:0.85rem;color:#6b8a9a;">
                                 @(string.IsNullOrEmpty(a.Reason) ? "—" : a.Reason)
                             </td>
                             <td style="padding:14px 20px;">
                                 @{
-                                    var (bg, fg) = a.Status switch
+                                    var (bg2, fg2) = a.Status switch
                                     {
                                         "Confirmed" => ("#d1fae5", "#065f46"),
                                         "Rejected" => ("#fee2e2", "#991b1b"),
@@ -172,7 +131,7 @@
                                         _ => ("#fef3c7", "#92400e")
                                     };
                                 }
-                                <span style="background:@bg;color:@fg;padding:4px 12px;
+                                <span style="background:@bg2;color:@fg2;padding:4px 12px;
                                                      border-radius:20px;font-size:0.74rem;font-weight:600;
                                                      display:inline-flex;align-items:center;gap:4px;">
                                     <i class="fa fa-circle" style="font-size:6px;"></i>
@@ -186,22 +145,38 @@
                                           method="post" style="display:inline;">
                                         @Html.AntiForgeryToken()
                                         <input type="hidden" name="id" value="@a.Id" />
+                                        <input type="hidden" name="returnUrl" value="Appointments" />
                                         <button type="submit" name="status" value="Confirmed"
                                                 style="background:#10b981;color:white;border:none;
-                                                                   padding:6px 14px;border-radius:8px;
+                                                                   padding:7px 14px;border-radius:8px;
                                                                    font-size:0.8rem;font-weight:600;
                                                                    cursor:pointer;margin-right:6px;"
-                                                title="Approve">
+                                                onclick="return confirm('Approve this appointment?')">
                                             <i class="fa fa-check"></i> Approve
                                         </button>
                                         <button type="submit" name="status" value="Rejected"
                                                 style="background:#ef4444;color:white;border:none;
-                                                                   padding:6px 14px;border-radius:8px;
+                                                                   padding:7px 14px;border-radius:8px;
                                                                    font-size:0.8rem;font-weight:600;
                                                                    cursor:pointer;"
-                                                onclick="return confirm('Reject this appointment?')"
-                                                title="Reject">
+                                                onclick="return confirm('Reject this appointment?')">
                                             <i class="fa fa-times"></i> Reject
+                                        </button>
+                                    </form>
+                                }
+                                else if (a.Status == "Confirmed")
+                                {
+                                    <form asp-controller="Doctor" asp-action="UpdateStatus"
+                                          method="post" style="display:inline;">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@a.Id" />
+                                        <input type="hidden" name="returnUrl" value="Appointments" />
+                                        <button type="submit" name="status" value="Completed"
+                                                style="background:#3b82f6;color:white;border:none;
+                                                                   padding:7px 14px;border-radius:8px;
+                                                                   font-size:0.8rem;font-weight:600;cursor:pointer;"
+                                                onclick="return confirm('Mark as completed?')">
+                                            <i class="fa fa-check-double"></i> Complete
                                         </button>
                                     </form>
                                 }
@@ -211,15 +186,17 @@
                                 }
                             </td>
                         </tr>
+                        i++;
                     }
                 }
                 else
                 {
                     <tr>
-                        <td colspan="6" style="text-align:center;padding:48px;color:#6b8a9a;">
-                            <i class="fa fa-calendar-times-o" style="font-size:2.5rem;
-                                   display:block;margin-bottom:10px;opacity:0.35;"></i>
-                            No appointments yet.
+                        <td colspan="7" style="text-align:center;padding:52px;color:#6b8a9a;">
+                            <i class="fa fa-calendar-times-o"
+                               style="font-size:2.5rem;display:block;
+                                          margin-bottom:12px;opacity:0.35;"></i>
+                            No appointments found.
                         </td>
                     </tr>
                 }

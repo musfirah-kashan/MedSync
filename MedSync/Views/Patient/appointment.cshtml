@@ -1,12 +1,14 @@
 ﻿@model MedSync.Models.Appointment
 @using System.Text.Json
 
-<input type="hidden" id="doctorSchedulesData" value='@Html.Raw(ViewBag.DoctorSchedulesJson)' />
+<input type="hidden" id="doctorSchedulesData"
+       value='@Html.Raw(ViewBag.DoctorSchedulesJson)' />
 
 @if (ViewBag.Error != null)
 {
     <div class="alert alert-danger mx-3 mt-3">@ViewBag.Error</div>
 }
+
 @if (TempData["Success"] != null)
 {
     <div class="alert alert-success mx-3 mt-3">@TempData["Success"]</div>
@@ -18,7 +20,9 @@
 
             <div class="col-lg-6 mb-5 mb-lg-0">
                 <div class="mb-4">
-                    <h5 class="d-inline-block text-primary text-uppercase border-bottom border-5">Appointment</h5>
+                    <h5 class="d-inline-block text-primary text-uppercase border-bottom border-5">
+                        Appointment
+                    </h5>
                     <h1 class="display-4">Make An Appointment For Your Family</h1>
                 </div>
                 <p class="mb-5">
@@ -33,13 +37,34 @@
                 <div class="bg-light text-center rounded p-5">
                     <h1 class="mb-4">Book An Appointment</h1>
 
+                    @* Login / Dashboard info bar *@
+                    @if (User.Identity != null && User.Identity.IsAuthenticated &&
+                                        User.IsInRole("Patient"))
+                    {
+                        <div class="alert alert-success text-start py-2 mb-3">
+                            <i class="fa fa-user-check me-1"></i>
+                            Logged in as <strong>@ViewBag.PrefilledName</strong> —
+                            <a href="/Patient/Dashboard"
+                               class="fw-bold text-success">View Dashboard</a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info text-start py-2 mb-3">
+                            <i class="fa fa-info-circle me-1"></i>
+                            Already have an account?
+                            <a href="/Patient/Login"
+                               class="fw-bold text-primary">Login here</a>
+                        </div>
+                    }
+
                     <form asp-controller="Patient" asp-action="Book" method="post">
                         @Html.AntiForgeryToken()
                         <input type="hidden" id="AppointmentDate" asp-for="AppointmentDate" />
 
                         <div class="row g-3">
 
-                            <!-- Step 1: Doctor -->
+                            <!-- Doctor -->
                             <div class="col-12">
                                 <select asp-for="DoctorId" id="DoctorId"
                                         class="form-select bg-white border-0"
@@ -55,7 +80,7 @@
                                 </select>
                             </div>
 
-                            <!-- Step 2: Date picker -->
+                            <!-- Date picker -->
                             <div class="col-12 d-none" id="dateSection">
                                 <label class="form-label fw-bold text-start w-100 text-primary">
                                     1. Select Date
@@ -69,7 +94,7 @@
                                 </small>
                             </div>
 
-                            <!-- Step 3: Time slots -->
+                            <!-- Time slots -->
                             <div class="col-12 d-none" id="slotsSection">
                                 <label class="form-label fw-bold text-start w-100 text-primary">
                                     2. Select Time Slot
@@ -93,8 +118,10 @@
                                 <input asp-for="PatientName"
                                        class="form-control bg-white border-0"
                                        placeholder="Your Name"
+                                       value="@ViewBag.PrefilledName"
                                        style="height:55px;" required />
-                                <span asp-validation-for="PatientName" class="text-danger small"></span>
+                                <span asp-validation-for="PatientName"
+                                      class="text-danger small"></span>
                             </div>
 
                             <!-- Email -->
@@ -102,8 +129,10 @@
                                 <input asp-for="Email" type="email"
                                        class="form-control bg-white border-0"
                                        placeholder="Your Email"
+                                       value="@ViewBag.PrefilledEmail"
                                        style="height:55px;" required />
-                                <span asp-validation-for="Email" class="text-danger small"></span>
+                                <span asp-validation-for="Email"
+                                      class="text-danger small"></span>
                             </div>
 
                             <!-- Phone -->
@@ -112,7 +141,8 @@
                                        class="form-control bg-white border-0"
                                        placeholder="Phone Number"
                                        style="height:55px;" required />
-                                <span asp-validation-for="Phone" class="text-danger small"></span>
+                                <span asp-validation-for="Phone"
+                                      class="text-danger small"></span>
                             </div>
 
                             <!-- Reason -->
@@ -159,9 +189,10 @@
             var selectedText    = document.getElementById('selectedText');
             var apptDate        = document.getElementById('AppointmentDate');
 
-            var dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+            var dayNames = ['Sunday','Monday','Tuesday','Wednesday',
+                            'Thursday','Friday','Saturday'];
 
-            // ── KEY FIX: kal se aage ki dates allow karo ──
+            // Kal se aage ki dates allow karo
             var tomorrow = new Date();
             tomorrow.setDate(tomorrow.getDate() + 1);
             datePicker.min = tomorrow.getFullYear() + '-' +
@@ -187,13 +218,11 @@
                 apptDate.value           = '';
             }
 
-            // Step 1: Doctor change
             doctorSelect.addEventListener('change', function () {
                 resetDate();
                 dateSection.classList.remove('d-none');
             });
 
-            // Step 2: Date change
             datePicker.addEventListener('change', function () {
                 resetSlots();
                 dateError.classList.add('d-none');
@@ -208,7 +237,8 @@
                 });
 
                 if (!matchedSchedule) {
-                    dateError.textContent = 'Doctor is not available on ' + selectedDay + '. Please pick another date.';
+                    dateError.textContent = 'Doctor is not available on ' +
+                        selectedDay + '. Please pick another date.';
                     dateError.classList.remove('d-none');
                     slotsSection.classList.add('d-none');
                     return;
@@ -217,13 +247,13 @@
                 renderSlots(matchedSchedule, selectedDay, this.value);
             });
 
-            // Step 3: Slots render
             function renderSlots(sched, dayName, dateStr) {
                 slotsSection.classList.remove('d-none');
                 var slots = generateSlots(sched.startTime, sched.endTime);
 
                 if (!slots.length) {
-                    slotsContainer.innerHTML = "<p class='text-muted small'>No slots available.</p>";
+                    slotsContainer.innerHTML =
+                        "<p class='text-muted small'>No slots available.</p>";
                     return;
                 }
 
@@ -241,10 +271,9 @@
                         btn.classList.add('btn-success');
                         btn.classList.remove('btn-outline-success');
                         slotError.classList.add('d-none');
-
                         apptDate.value = buildDateTime(dateStr, slot);
-
-                        selectedText.textContent = dayName + ', ' + formatDate(dateStr) + ' at ' + slot;
+                        selectedText.textContent =
+                            dayName + ', ' + formatDate(dateStr) + ' at ' + slot;
                         selectedDisplay.classList.remove('d-none');
                     });
 
@@ -253,8 +282,8 @@
             }
 
             function generateSlots(start, end) {
-                var slots   = [];
-                var toMin   = function(t) {
+                var slots  = [];
+                var toMin  = function(t) {
                     var p = t.split(':');
                     return parseInt(p[0]) * 60 + parseInt(p[1]);
                 };
@@ -288,7 +317,9 @@
 
             function formatDate(dateStr) {
                 var d = new Date(dateStr + 'T00:00:00');
-                return d.toLocaleDateString('en-US', { day:'numeric', month:'short', year:'numeric' });
+                return d.toLocaleDateString('en-US', {
+                    day:'numeric', month:'short', year:'numeric'
+                });
             }
 
             document.querySelector('form').addEventListener('submit', function(e) {
