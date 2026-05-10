@@ -257,6 +257,31 @@ namespace MedSync.Controllers
 
             return RedirectToAction("Dashboard");
         }
+        // ══════════════════════════════
+        // PRESCRIPTIONS PAGE
+        // ══════════════════════════════
+        [HttpGet]
+        public async Task<IActionResult> Prescriptions()
+        {
+            if (User.Identity == null || !User.Identity.IsAuthenticated ||
+                !User.IsInRole("Patient"))
+                return RedirectToAction("Login");
+
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return RedirectToAction("Login");
+
+            var prescriptions = _context.Prescriptions
+                .Include(p => p.Doctor)
+                .Include(p => p.Appointment)
+                .Where(p => p.PatientUserId == user.Id)
+                .OrderByDescending(p => p.CreatedAt)
+                .ToList();
+
+            ViewBag.PatientName = user.FullName;
+            ViewBag.Prescriptions = prescriptions;
+
+            return View("Prescriptions");
+        }
 
         // ══════════════════════════════
         // DASHBOARD

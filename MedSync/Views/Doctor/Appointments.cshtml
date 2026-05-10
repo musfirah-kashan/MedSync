@@ -11,9 +11,18 @@
 @if (TempData["Success"] != null)
 {
     <div style="background:#d1fae5;border:1px solid #6ee7b7;color:#065f46;border-radius:10px;
-                    padding:14px 20px;margin-bottom:20px;display:flex;align-items:center;gap:10px;
-                    font-size:0.9rem;font-weight:500;">
+                        padding:14px 20px;margin-bottom:20px;display:flex;align-items:center;gap:10px;
+                        font-size:0.9rem;font-weight:500;">
         <i class="fa fa-check-circle"></i> @TempData["Success"]
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div style="background:#fee2e2;border:1px solid #fca5a5;color:#991b1b;border-radius:10px;
+                        padding:14px 20px;margin-bottom:20px;display:flex;align-items:center;gap:10px;
+                        font-size:0.9rem;font-weight:500;">
+        <i class="fa fa-times-circle"></i> @TempData["Error"]
     </div>
 }
 
@@ -26,11 +35,14 @@
         ("Confirmed", (int)ViewBag.ConfirmedCount, "#10b981"),
         ("Rejected",  (int)ViewBag.RejectedCount,  "#ef4444"),
         };
+
         var currentFilter = ViewBag.Filter as string ?? "All";
     }
+
     @foreach (var (label, count, color) in filters)
     {
         var isActive = currentFilter == label;
+
         <a href="/Doctor/Appointments?filter=@label"
            style="display:inline-flex;align-items:center;gap:8px;
                       padding:8px 18px;border-radius:25px;font-size:0.85rem;font-weight:600;
@@ -38,10 +50,14 @@
                       background:@(isActive? color : "white");
                       color:@(isActive ? "white" : "#6b8a9a");
                       border:1.5px solid @(isActive? color : "#d0eaec");">
+
             @label
+
             <span style="background:@(isActive ? "rgba(255,255,255,0.25)" : "#f0fafa");
                              color:@(isActive ? "white" : color);
-                             padding:1px 8px;border-radius:12px;font-size:0.72rem;font-weight:700;">
+                             padding:1px 8px;border-radius:12px;
+                             font-size:0.72rem;font-weight:700;">
+
                 @count
             </span>
         </a>
@@ -50,38 +66,66 @@
 
 <!-- Table -->
 <div style="background:white;border-radius:14px;border:1px solid #d0eaec;overflow:hidden;">
+
     <div style="overflow-x:auto;">
+
         <table style="width:100%;border-collapse:collapse;">
+
             <thead>
                 <tr style="background:#f0fafa;">
+
                     <th style="padding:12px 20px;text-align:left;font-size:0.72rem;
                                font-weight:600;color:#6b8a9a;text-transform:uppercase;
-                               letter-spacing:0.5px;">#</th>
+                               letter-spacing:0.5px;">
+                        #
+                    </th>
+
                     <th style="padding:12px 20px;text-align:left;font-size:0.72rem;
                                font-weight:600;color:#6b8a9a;text-transform:uppercase;
-                               letter-spacing:0.5px;">Patient</th>
+                               letter-spacing:0.5px;">
+                        Patient
+                    </th>
+
                     <th style="padding:12px 20px;text-align:left;font-size:0.72rem;
                                font-weight:600;color:#6b8a9a;text-transform:uppercase;
-                               letter-spacing:0.5px;">Contact</th>
+                               letter-spacing:0.5px;">
+                        Contact
+                    </th>
+
                     <th style="padding:12px 20px;text-align:left;font-size:0.72rem;
                                font-weight:600;color:#6b8a9a;text-transform:uppercase;
-                               letter-spacing:0.5px;">Date & Time</th>
+                               letter-spacing:0.5px;">
+                        Date & Time
+                    </th>
+
                     <th style="padding:12px 20px;text-align:left;font-size:0.72rem;
                                font-weight:600;color:#6b8a9a;text-transform:uppercase;
-                               letter-spacing:0.5px;">Reason</th>
+                               letter-spacing:0.5px;">
+                        Reason
+                    </th>
+
                     <th style="padding:12px 20px;text-align:left;font-size:0.72rem;
                                font-weight:600;color:#6b8a9a;text-transform:uppercase;
-                               letter-spacing:0.5px;">Status</th>
+                               letter-spacing:0.5px;">
+                        Status
+                    </th>
+
                     <th style="padding:12px 20px;text-align:center;font-size:0.72rem;
                                font-weight:600;color:#6b8a9a;text-transform:uppercase;
-                               letter-spacing:0.5px;">Action</th>
+                               letter-spacing:0.5px;">
+                        Action
+                    </th>
+
                 </tr>
             </thead>
+
             <tbody>
+
                 @{
                     var appts = ViewBag.Appointments as List<Appointment>;
                     int i = 1;
                 }
+
                 @if (appts != null && appts.Any())
                 {
                     foreach (var a in appts)
@@ -89,39 +133,70 @@
                         <tr style="border-top:1px solid #d0eaec;"
                             onmouseover="this.style.background='#f8fefe'"
                             onmouseout="this.style.background='white'">
+
+                            <!-- Index -->
                             <td style="padding:14px 20px;font-size:0.85rem;color:#6b8a9a;">
                                 @i
                             </td>
+
+                            <!-- Patient -->
                             <td style="padding:14px 20px;">
+
                                 <div style="display:flex;align-items:center;gap:10px;">
+
                                     <div style="width:36px;height:36px;background:#17bebb;
                                                         border-radius:50%;display:flex;align-items:center;
                                                         justify-content:center;color:white;font-weight:700;
                                                         font-size:0.88rem;flex-shrink:0;">
-                                        @(a.PatientName?.Length > 0 ? a.PatientName[0].ToString().ToUpper() : "P")
-                                    </div>
+
+                                        @(a.PatientName?.Length > 0
+                                                                        ? a.PatientName[0].ToString().ToUpper()
+                                                                        : "P")
+                            </div>
+
                                     <span style="font-weight:600;font-size:0.88rem;color:#0d2b45;">
                                         @a.PatientName
                                     </span>
+
                                 </div>
+
                             </td>
+
+                            <!-- Contact -->
                             <td style="padding:14px 20px;">
-                                <div style="font-size:0.82rem;color:#0d2b45;">@a.Email</div>
-                                <div style="font-size:0.78rem;color:#6b8a9a;">@a.Phone</div>
+
+                                <div style="font-size:0.82rem;color:#0d2b45;">
+                                    @a.Email
+                                </div>
+
+                                <div style="font-size:0.78rem;color:#6b8a9a;">
+                                    @a.Phone
+                                </div>
+
                             </td>
+
+                            <!-- Date -->
                             <td style="padding:14px 20px;">
+
                                 <div style="font-size:0.87rem;font-weight:600;color:#0d2b45;">
                                     @a.AppointmentDate.ToString("dd MMM yyyy")
                                 </div>
+
                                 <div style="font-size:0.78rem;color:#6b8a9a;">
                                     @a.AppointmentDate.ToString("hh:mm tt")
                                 </div>
+
                             </td>
+
+                            <!-- Reason -->
                             <td style="padding:14px 20px;font-size:0.85rem;color:#6b8a9a;">
                                 @(string.IsNullOrEmpty(a.Reason) ? "—" : a.Reason)
                             </td>
+
+                            <!-- Status -->
                             <td style="padding:14px 20px;">
-                                @{
+
+                        @{
                                     var (bg2, fg2) = a.Status switch
                                     {
                                         "Confirmed" => ("#d1fae5", "#065f46"),
@@ -131,76 +206,147 @@
                                         _ => ("#fef3c7", "#92400e")
                                     };
                                 }
+
                                 <span style="background:@bg2;color:@fg2;padding:4px 12px;
                                                      border-radius:20px;font-size:0.74rem;font-weight:600;
                                                      display:inline-flex;align-items:center;gap:4px;">
+
                                     <i class="fa fa-circle" style="font-size:6px;"></i>
+
                                     @a.Status
+
                                 </span>
+
                             </td>
+
+                            <!-- Actions -->
                             <td style="padding:14px 20px;text-align:center;">
+
                                 @if (a.Status == "Pending")
                                 {
-                                    <form asp-controller="Doctor" asp-action="UpdateStatus"
-                                          method="post" style="display:inline;">
+                                    <form asp-controller="Doctor"
+                                          asp-action="UpdateStatus"
+                                          method="post"
+                                          style="display:inline;">
+
                                         @Html.AntiForgeryToken()
+
                                         <input type="hidden" name="id" value="@a.Id" />
                                         <input type="hidden" name="returnUrl" value="Appointments" />
-                                        <button type="submit" name="status" value="Confirmed"
+
+                                        <button type="submit"
+                                                name="status"
+                                                value="Confirmed"
                                                 style="background:#10b981;color:white;border:none;
                                                                    padding:7px 14px;border-radius:8px;
                                                                    font-size:0.8rem;font-weight:600;
                                                                    cursor:pointer;margin-right:6px;"
                                                 onclick="return confirm('Approve this appointment?')">
+
                                             <i class="fa fa-check"></i> Approve
                                         </button>
-                                        <button type="submit" name="status" value="Rejected"
+
+                                        <button type="submit"
+                                                name="status"
+                                                value="Rejected"
                                                 style="background:#ef4444;color:white;border:none;
                                                                    padding:7px 14px;border-radius:8px;
                                                                    font-size:0.8rem;font-weight:600;
                                                                    cursor:pointer;"
                                                 onclick="return confirm('Reject this appointment?')">
+
                                             <i class="fa fa-times"></i> Reject
                                         </button>
+
                                     </form>
                                 }
+
                                 else if (a.Status == "Confirmed")
                                 {
-                                    <form asp-controller="Doctor" asp-action="UpdateStatus"
-                                          method="post" style="display:inline;">
+                                    <form asp-controller="Doctor"
+                                          asp-action="UpdateStatus"
+                                          method="post"
+                                          style="display:inline;">
+
                                         @Html.AntiForgeryToken()
+
                                         <input type="hidden" name="id" value="@a.Id" />
                                         <input type="hidden" name="returnUrl" value="Appointments" />
-                                        <button type="submit" name="status" value="Completed"
+
+                                        <button type="submit"
+                                                name="status"
+                                                value="Completed"
                                                 style="background:#3b82f6;color:white;border:none;
                                                                    padding:7px 14px;border-radius:8px;
-                                                                   font-size:0.8rem;font-weight:600;cursor:pointer;"
+                                                                   font-size:0.8rem;font-weight:600;
+                                                                   cursor:pointer;"
                                                 onclick="return confirm('Mark as completed?')">
+
                                             <i class="fa fa-check-double"></i> Complete
                                         </button>
+
                                     </form>
                                 }
+
+                                else if (a.Status == "Completed")
+                                {
+                                    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
+
+                                        <a asp-controller="Doctor"
+                                           asp-action="AddPrescription"
+                                           asp-route-appointmentId="@a.Id"
+                                           style="background:#17bebb;color:white;border:none;
+                                                              padding:7px 14px;border-radius:8px;
+                                                              font-size:0.8rem;font-weight:600;
+                                                              text-decoration:none;display:inline-block;">
+
+                                            <i class="fa fa-file-medical"></i> Prescription
+                                        </a>
+
+                                        <a href="/Doctor/PatientHistory?userId=@a.UserId"
+                                           style="background:#6366f1;color:white;border:none;
+                                                              padding:7px 14px;border-radius:8px;
+                                                              font-size:0.8rem;font-weight:600;
+                                                              text-decoration:none;display:inline-block;">
+
+                                            <i class="fa fa-history"></i> History
+                                        </a>
+
+                                    </div>
+                                }
+
                                 else
                                 {
                                     <span style="color:#6b8a9a;font-size:0.85rem;">—</span>
                                 }
+
                             </td>
+
                         </tr>
+
                         i++;
                     }
                 }
+
                 else
                 {
                     <tr>
-                        <td colspan="7" style="text-align:center;padding:52px;color:#6b8a9a;">
+                        <td colspan="7"
+                            style="text-align:center;padding:52px;color:#6b8a9a;">
+
                             <i class="fa fa-calendar-times-o"
                                style="font-size:2.5rem;display:block;
                                           margin-bottom:12px;opacity:0.35;"></i>
+
                             No appointments found.
                         </td>
                     </tr>
                 }
+
             </tbody>
+
         </table>
+
     </div>
+
 </div>

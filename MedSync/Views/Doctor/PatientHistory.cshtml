@@ -1,0 +1,211 @@
+﻿@{
+    Layout = "_DoctorLayout";
+}
+@using MedSync.Models
+
+<div class="page-heading">
+    <h2>Patient History — @ViewBag.PatientName</h2>
+    <p>@ViewBag.PatientEmail</p>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div style="background:#d1fae5;border:1px solid #6ee7b7;color:#065f46;
+                    border-radius:10px;padding:14px 20px;margin-bottom:20px;
+                    display:flex;align-items:center;gap:10px;font-size:0.9rem;font-weight:500;">
+        <i class="fa fa-check-circle"></i> @TempData["Success"]
+    </div>
+}
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+
+    <!-- Left: Appointments -->
+    <div>
+        <div style="background:white;border-radius:14px;border:1px solid #d0eaec;overflow:hidden;">
+            <div style="padding:16px 20px;border-bottom:1px solid #d0eaec;
+                        display:flex;align-items:center;justify-content:space-between;">
+                <h5 style="margin:0;font-size:0.95rem;font-weight:600;color:#0d2b45;">
+                    <i class="fa fa-calendar" style="color:#17bebb;margin-right:8px;"></i>
+                    Appointment History
+                </h5>
+            </div>
+            <div style="overflow-x:auto;">
+                <table style="width:100%;border-collapse:collapse;">
+                    <thead>
+                        <tr style="background:#f0fafa;">
+                            <th style="padding:10px 16px;font-size:0.72rem;font-weight:600;
+                                       color:#6b8a9a;text-transform:uppercase;text-align:left;">Date</th>
+                            <th style="padding:10px 16px;font-size:0.72rem;font-weight:600;
+                                       color:#6b8a9a;text-transform:uppercase;text-align:left;">Reason</th>
+                            <th style="padding:10px 16px;font-size:0.72rem;font-weight:600;
+                                       color:#6b8a9a;text-transform:uppercase;text-align:left;">Status</th>
+                            <th style="padding:10px 16px;font-size:0.72rem;font-weight:600;
+                                       color:#6b8a9a;text-transform:uppercase;text-align:center;">Rx</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            var appts = ViewBag.Appointments as List<Appointment>;
+                        }
+                        @if (appts != null && appts.Any())
+                        {
+                            foreach (var a in appts)
+                            {
+                                <tr style="border-top:1px solid #d0eaec;">
+                                    <td style="padding:12px 16px;font-size:0.85rem;color:#0d2b45;">
+                                        @a.AppointmentDate.ToString("dd MMM yyyy")<br />
+                                        <small style="color:#6b8a9a;">
+                                            @a.AppointmentDate.ToString("hh:mm tt")
+                                        </small>
+                                    </td>
+                                    <td style="padding:12px 16px;font-size:0.82rem;color:#6b8a9a;">
+                                        @(string.IsNullOrEmpty(a.Reason) ? "—" : a.Reason)
+                                    </td>
+                                    <td style="padding:12px 16px;">
+                                        @{
+                                            var (bg, fg) = a.Status switch
+                                            {
+                                                "Confirmed" => ("#d1fae5", "#065f46"),
+                                                "Rejected" => ("#fee2e2", "#991b1b"),
+                                                "Completed" => ("#dbeafe", "#1e40af"),
+                                                _ => ("#fef3c7", "#92400e")
+                                            };
+                                        }
+                                        <span style="background:@bg;color:@fg;padding:3px 10px;
+                                                             border-radius:20px;font-size:0.72rem;font-weight:600;">
+                                            @a.Status
+                                        </span>
+                                    </td>
+                                    <td style="padding:12px 16px;text-align:center;">
+                                        @if (a.Status == "Completed")
+                                        {
+                                            <a href="/Doctor/AddPrescription?appointmentId=@a.Id"
+                                               style="background:#17bebb;color:white;padding:5px 12px;
+                                                                  border-radius:8px;font-size:0.78rem;font-weight:600;
+                                                                  text-decoration:none;">
+                                                <i class="fa fa-plus"></i> Rx
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <span style="color:#d0eaec;">—</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="4" style="text-align:center;padding:32px;color:#6b8a9a;">
+                                    No appointments found.
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right: Prescriptions -->
+    <div>
+        @{
+            var prescriptions = ViewBag.Prescriptions as List<Prescription>;
+        }
+        @if (prescriptions != null && prescriptions.Any())
+        {
+            foreach (var p in prescriptions)
+            {
+                <div style="background:white;border-radius:14px;border:1px solid #d0eaec;
+                                    margin-bottom:16px;overflow:hidden;">
+                    <div style="padding:14px 20px;background:#f0fafa;border-bottom:1px solid #d0eaec;
+                                        display:flex;align-items:center;justify-content:space-between;">
+                        <div>
+                            <span style="font-weight:600;font-size:0.9rem;color:#0d2b45;">
+                                <i class="fa fa-file-medical" style="color:#17bebb;margin-right:6px;"></i>
+                                Prescription
+                            </span>
+                            <span style="font-size:0.78rem;color:#6b8a9a;margin-left:8px;">
+                                @p.CreatedAt.ToString("dd MMM yyyy")
+                            </span>
+                        </div>
+                        <a href="/Doctor/AddPrescription?appointmentId=@p.AppointmentId"
+                           style="background:#6366f1;color:white;padding:5px 12px;border-radius:8px;
+                                          font-size:0.78rem;font-weight:600;text-decoration:none;">
+                            <i class="fa fa-edit"></i> Edit
+                        </a>
+                    </div>
+                    <div style="padding:16px 20px;">
+                        @if (!string.IsNullOrEmpty(p.Diagnosis))
+                        {
+                            <div style="margin-bottom:12px;">
+                                <div style="font-size:0.72rem;font-weight:700;color:#17bebb;
+                                                        text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">
+                                    Diagnosis
+                                </div>
+                                <div style="font-size:0.88rem;color:#0d2b45;">@p.Diagnosis</div>
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(p.Medicines))
+                        {
+                            <div style="margin-bottom:12px;">
+                                <div style="font-size:0.72rem;font-weight:700;color:#10b981;
+                                                        text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">
+                                    Medicines
+                                </div>
+                                @foreach (var med in p.Medicines.Split('\n', StringSplitOptions.RemoveEmptyEntries))
+                                {
+                                    <div style="font-size:0.85rem;color:#0d2b45;padding:4px 0;
+                                                                border-bottom:1px dashed #d0eaec;">
+                                        <i class="fa fa-capsules" style="color:#10b981;margin-right:6px;"></i>
+                                        @med
+                                    </div>
+                                }
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(p.Tests))
+                        {
+                            <div style="margin-bottom:12px;">
+                                <div style="font-size:0.72rem;font-weight:700;color:#f59e0b;
+                                                        text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">
+                                    Tests
+                                </div>
+                                @foreach (var test in p.Tests.Split('\n', StringSplitOptions.RemoveEmptyEntries))
+                                {
+                                    <div style="font-size:0.85rem;color:#0d2b45;padding:4px 0;
+                                                                border-bottom:1px dashed #d0eaec;">
+                                        <i class="fa fa-flask" style="color:#f59e0b;margin-right:6px;"></i>
+                                        @test
+                                    </div>
+                                }
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(p.Notes))
+                        {
+                            <div>
+                                <div style="font-size:0.72rem;font-weight:700;color:#6b8a9a;
+                                                        text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">
+                                    Notes
+                                </div>
+                                <div style="font-size:0.85rem;color:#6b8a9a;font-style:italic;">
+                                    @p.Notes
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div style="background:white;border-radius:14px;border:1px solid #d0eaec;
+                            padding:40px;text-align:center;color:#6b8a9a;">
+                <i class="fa fa-file-medical" style="font-size:2.5rem;display:block;
+                       margin-bottom:12px;opacity:0.3;"></i>
+                No prescriptions yet. Mark appointment as Completed to add prescription.
+            </div>
+        }
+    </div>
+
+</div>

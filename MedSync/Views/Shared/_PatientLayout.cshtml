@@ -1,5 +1,4 @@
 ﻿@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -136,6 +135,18 @@
     <nav class="p-navbar">
         <a href="/Patient/Dashboard" class="brand">MED<span>SYNC</span></a>
         <div class="nav-right">
+            <a href="/Patient/Prescriptions"
+               style="color:rgba(255,255,255,0.8);font-size:0.85rem;text-decoration:none;
+                  display:flex;align-items:center;gap:6px;font-weight:500;">
+                <i class="fa fa-file-medical"></i>
+                <span>Prescriptions</span>
+            </a>
+            <a href="/Chat/PatientChat"
+               style="color:rgba(255,255,255,0.8);font-size:0.85rem;text-decoration:none;
+          display:flex;align-items:center;gap:6px;font-weight:500;">
+                <i class="fa fa-comments"></i>
+                <span>Chat</span>
+            </a>
             <div class="patient-name">
                 <div class="patient-avatar">@firstLetter</div>
                 <span>@patientName</span>
@@ -148,9 +159,11 @@
 
     <div class="p-wrapper">
         @RenderBody()
+        @await RenderSectionAsync("Scripts", required: false)
+
     </div>
 
-    @await RenderSectionAsync("Scripts", required: false)
+   
 
 </body>
 </html>

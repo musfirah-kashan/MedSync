@@ -1,0 +1,111 @@
+﻿@{
+    Layout = "_DoctorLayout";
+}
+@using MedSync.Models
+
+@{
+    var appt = ViewBag.Appointment as Appointment;
+    var existing = ViewBag.Existing as Prescription;
+}
+
+<div class="page-heading">
+    <h2>@(existing != null ? "Edit" : "Add") Prescription</h2>
+    <p>
+        Patient: <strong>@appt?.PatientName</strong> —
+        @appt?.AppointmentDate.ToString("dd MMM yyyy hh:mm tt")
+    </p>
+</div>
+
+<div style="max-width:700px;">
+    <div style="background:white;border-radius:14px;border:1px solid #d0eaec;padding:28px;">
+
+        <form asp-controller="Doctor" asp-action="AddPrescription" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="AppointmentId" value="@appt?.Id" />
+            <input type="hidden" name="Id" value="@(existing?.Id ?? 0)" />
+
+            <!-- Diagnosis -->
+            <div style="margin-bottom:20px;">
+                <label style="display:block;font-size:0.8rem;font-weight:600;color:#0d2b45;margin-bottom:6px;">
+                    <i class="fa fa-stethoscope" style="color:#17bebb;margin-right:6px;"></i>
+                    Diagnosis
+                </label>
+                <input type="text" name="Diagnosis"
+                       value="@(existing?.Diagnosis ?? "")"
+                       placeholder="e.g. Upper respiratory tract infection"
+                       style="width:100%;padding:12px 14px;border:1.5px solid #d0eaec;
+                              border-radius:10px;font-size:0.88rem;outline:none;
+                              font-family:'Poppins',sans-serif;"
+                       onfocus="this.style.borderColor='#17bebb'"
+                       onblur="this.style.borderColor='#d0eaec'" />
+            </div>
+
+            <!-- Medicines -->
+            <div style="margin-bottom:20px;">
+                <label style="display:block;font-size:0.8rem;font-weight:600;color:#0d2b45;margin-bottom:6px;">
+                    <i class="fa fa-pills" style="color:#10b981;margin-right:6px;"></i>
+                    Medicines
+                    <span style="font-weight:400;color:#6b8a9a;font-size:0.76rem;">
+                        (ek line mein ek medicine)
+                    </span>
+                </label>
+                <textarea name="Medicines" rows="5"
+                          placeholder="Paracetamol 500mg — 2x daily after meal&#10;Amoxicillin 250mg — 3x daily&#10;Vitamin C — 1x daily"
+                          style="width:100%;padding:12px 14px;border:1.5px solid #d0eaec;
+                                 border-radius:10px;font-size:0.88rem;outline:none;
+                                 font-family:'Poppins',sans-serif;resize:vertical;"
+                          onfocus="this.style.borderColor='#17bebb'"
+                          onblur="this.style.borderColor='#d0eaec'">@(existing?.Medicines ?? "")</textarea>
+            </div>
+
+            <!-- Tests -->
+            <div style="margin-bottom:20px;">
+                <label style="display:block;font-size:0.8rem;font-weight:600;color:#0d2b45;margin-bottom:6px;">
+                    <i class="fa fa-flask" style="color:#f59e0b;margin-right:6px;"></i>
+                    Tests / Investigations
+                    <span style="font-weight:400;color:#6b8a9a;font-size:0.76rem;">
+                        (ek line mein ek test)
+                    </span>
+                </label>
+                <textarea name="Tests" rows="3"
+                          placeholder="Complete Blood Count (CBC)&#10;Chest X-Ray&#10;Blood Sugar Fasting"
+                          style="width:100%;padding:12px 14px;border:1.5px solid #d0eaec;
+                                 border-radius:10px;font-size:0.88rem;outline:none;
+                                 font-family:'Poppins',sans-serif;resize:vertical;"
+                          onfocus="this.style.borderColor='#17bebb'"
+                          onblur="this.style.borderColor='#d0eaec'">@(existing?.Tests ?? "")</textarea>
+            </div>
+
+            <!-- Notes -->
+            <div style="margin-bottom:24px;">
+                <label style="display:block;font-size:0.8rem;font-weight:600;color:#0d2b45;margin-bottom:6px;">
+                    <i class="fa fa-sticky-note" style="color:#6b8a9a;margin-right:6px;"></i>
+                    Additional Notes
+                </label>
+                <textarea name="Notes" rows="3"
+                          placeholder="Rest for 3 days. Drink plenty of fluids. Follow up in 1 week."
+                          style="width:100%;padding:12px 14px;border:1.5px solid #d0eaec;
+                                 border-radius:10px;font-size:0.88rem;outline:none;
+                                 font-family:'Poppins',sans-serif;resize:vertical;"
+                          onfocus="this.style.borderColor='#17bebb'"
+                          onblur="this.style.borderColor='#d0eaec'">@(existing?.Notes ?? "")</textarea>
+            </div>
+
+            <div style="display:flex;gap:12px;">
+                <button type="submit"
+                        style="background:#17bebb;color:white;border:none;padding:13px 28px;
+                               border-radius:10px;font-size:0.9rem;font-weight:600;cursor:pointer;
+                               font-family:'Poppins',sans-serif;">
+                    <i class="fa fa-save" style="margin-right:6px;"></i>
+                    Save Prescription
+                </button>
+                <a href="javascript:history.back()"
+                   style="background:#f0fafa;color:#6b8a9a;border:1.5px solid #d0eaec;
+                          padding:13px 28px;border-radius:10px;font-size:0.9rem;font-weight:600;
+                          text-decoration:none;">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
