@@ -61,35 +61,6 @@ MedSync/
 └── MedSync.sln
 ```
 
-## Getting Started
-
-### Prerequisites
-- [.NET SDK](https://dotnet.microsoft.com/download) (matching the project's target version)
-- Microsoft SQL Server (local instance or SQL Server Express)
-- Visual Studio 2022 or later (recommended) or the `dotnet` CLI
-
-### Setup
-
-1. Clone the repository
-   ```bash
-   git clone https://github.com/<your-username>/medsync.git
-   cd medsync
-   ```
-
-2. Update the connection string in `appsettings.json` to point to your SQL Server instance.
-
-3. Apply database migrations
-   ```bash
-   dotnet ef database update
-   ```
-
-4. Run the application
-   ```bash
-   dotnet run
-   ```
-
-5. Open the app at `https://localhost:<port>` and register/log in based on role.
-
 ## Roles & Access
 
 | Role | Access |
@@ -97,7 +68,3 @@ MedSync/
 | **Admin** | Manage doctors, medicine inventory, appointments, and patients |
 | **Doctor** | Manage appointments, patient history, and prescriptions |
 | **Patient** | Book appointments, view prescriptions, chat with doctors |
-
-## License
-
-This project is available for educational and academic use.
